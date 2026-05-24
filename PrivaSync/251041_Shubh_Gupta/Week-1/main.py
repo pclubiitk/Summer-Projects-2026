@@ -7,9 +7,6 @@ from utils import find_item
 
 import redis.asyncio as redis
 
-
-# -------------------- Redis Setup --------------------
-
 redis_client = None
 
 
@@ -35,8 +32,6 @@ async def get_redis():
     return redis_client
 
 
-# -------------------- Fake Database --------------------
-
 inventory = [
     {
         "id": 1,
@@ -45,15 +40,9 @@ inventory = [
     }
 ]
 
-
-# -------------------- Authentication --------------------
-
 def authenticate():
     return True
-
-
-# -------------------- Models --------------------
-
+    
 class Item(BaseModel):
     name: str
     quantity: int
@@ -70,21 +59,14 @@ class ItemUpdate(BaseModel):
         description="Optional quantity of the item"
     )
 
-
-# -------------------- Routes --------------------
-
 @app.get("/")
 async def root():
     return {"message": "FastAPI + Redis Running"}
 
-
-# Get all items
 @app.get("/items")
 async def get_items():
     return {"items": inventory}
 
-
-# Get single item
 @app.get("/items/{item_id}")
 async def get_item(item_id: int):
 
@@ -101,8 +83,6 @@ async def get_item(item_id: int):
 
     return {"item": item}
 
-
-# Add new item
 @app.post("/items")
 async def add_item(data: Item):
 
@@ -116,8 +96,6 @@ async def add_item(data: Item):
 
     return item
 
-
-# Update item
 @app.patch("/items/{item_id}")
 async def update_item(
     item_id: int,
@@ -144,10 +122,7 @@ async def update_item(
     inventory[idx] = item
 
     return item
-
-
-# -------------------- Redis Cache Routes --------------------
-
+    
 @app.get("/cached-items/{item_id}")
 async def read_cached_item(
     item_id: int,
@@ -162,10 +137,7 @@ async def read_cached_item(
             "source": "cache"
         }
 
-    # Simulate database fetch
     item = f"Item {item_id}"
-
-    # Save in Redis
     await redis_db.set(
         f"item:{item_id}",
         item,
@@ -192,7 +164,6 @@ async def get_cached_data(
             "source": "cache"
         }
 
-    # Simulate DB call
     val = f"Real data for {key}"
 
     await redis_db.set(
