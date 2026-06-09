@@ -16,7 +16,7 @@ void solve()
     double l = -1e18f;
     double r = 1e18f;
 
-    while(r - l >= 1e-6){
+    while(r - l >= 1e-6f){
 
         double mid = l + (r - l)/2;
 

@@ -1,0 +1,42 @@
+<html>
+<head>
+    <style>
+        img {
+            width: 100%;
+            max-width: 600px;
+            display: block;
+            margin: 20px auto;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+        img.loaded {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lazy Loading Images</h1>
+    <img src="https://media.geeksforgeeks.org/wp-content/uploads/20250113100739878238/how_to_get_60_marks_in_gate_cse_.webp" data-src="https://media.geeksforgeeks.org/wp-content/uploads/20250113100824388125/how_many_marks_required_in_gate_for_iit_bombay_cse_.webp" alt="Image1">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const lazyImages = document.querySelectorAll('img[data-src]');
+
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        img.classList.add('loaded');  
+                        observer.unobserve(img);
+                    }
+                });
+            });
+
+            lazyImages.forEach(img => {
+                imageObserver.observe(img);
+            });
+        });
+    </script>
+</body>
+</html>
