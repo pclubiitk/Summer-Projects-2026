@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Connected Users:</h1>
+    <p id="status">disconnected</p>
+    <p class="ping-status">Amount of pings: <span id="ping-count">0</span></p>
+    <p class="pong-status">Amount of pongs: <span id="pong-count">0</span></p>
+
+    <ul class="users"></ul>
+  </body>
+  <script>
+    const username = prompt("Enter your username:");
+    let ws;
+    let retryDelay = 1000;
+    let crashed = false;
+
+    function connect() {
+      document.getElementById("status").textContent = "connecting...";
+      ws = new WebSocket(`ws://localhost:8000/ws/${username}`);
+
+      ws.onopen = () => {
+        document.getElementById("status").textContent = "connected";
+        retryDelay = 1000;
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === "users") {
+          const usersList = document.querySelector(".users");
+          usersList.innerHTML = "";
+          data.users.forEach((user) => {
+            const li = document.createElement("li");
+            li.textContent = user;
+            usersList.appendChild(li);
+          });
+        }
+
+        if (data.type === "ping") {
+          console.log("got the ping");
+          const pingCount = document.getElementById("ping-count");
+          pingCount.textContent = parseInt(pingCount.textContent) + 1;
+          if (!crashed) {
+            try {
+              console.log("sending pong");
+
+              ws.send(
+                JSON.stringify({
+                  type: "pong",
+                }),
+              );
+
+              console.log("pong sent");
+
+              const pongCount = document.getElementById("pong-count");
+              pongCount.textContent = parseInt(pongCount.textContent) + 1;
+            } catch (err) {
+              console.error("pong send failed", err);
+            }
+          }
+        }
+      };
+
+      ws.onclose = () => {
+        document.getElementById("status").textContent = "disconnected";
+        console.log(`Reconnecting in ${retryDelay / 1000}s`);
+
+        setTimeout(() => {
+          crashed = false;
+          connect();
+        }, retryDelay);
+
+        retryDelay = Math.min(30000, retryDelay * 2);
+      };
+
+      ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+        ws.close();
+      };
+    }
+
+    connect();
+
+    setTimeout(() => {
+      crashed = true;
+      console.log("Crash simulation: no more pongs");
+    }, 10000);
+  </script>
+</html>
