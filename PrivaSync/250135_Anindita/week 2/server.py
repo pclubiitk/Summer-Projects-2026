@@ -28,8 +28,8 @@ class ConnectionManager:
            self.last_pong[client_id] = time.time()
            logger.info(f"Pong received from {client_id}")
 
-async def ping_all_clients(self):
-      while True:
+     async def ping_all_clients(self):
+        while True:
             await asyncio.sleep(5)
             for client_id, ws in list(self.clients.items()):
                 try:
@@ -39,8 +39,8 @@ async def ping_all_clients(self):
                         logger.warning(f"Failed to ping {client_id}: {e}")
                         self.unregister(client_id)
 
-async def reap_dead_connections(self):
-      while True:
+     async def reap_dead_connections(self):
+        while True:
             await asyncio.sleep(5)
             now=time.time()
             for client_id, last in list(self.last_pong.items()):
@@ -76,4 +76,5 @@ async def main():
             asyncio.Future(),
         )
 
-        
+if __name__ == "__main__":
+    asyncio.run(main())
