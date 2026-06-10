@@ -1,0 +1,47 @@
+name: Project PR Labeler
+
+on:
+  pull_request_target:
+    types: [opened, edited]
+
+jobs:
+  apply-labels:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Parse Project Checkboxes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || "";
+            const labelsToAdd = [];
+
+            // Maps the exact checkbox text to the intended GitHub label
+            const labelMapping = {
+              'AlgoArena': 'AlgoArena',
+              'Priva-Sync': 'Priva-Sync',
+              'PolicyQuest': 'PolicyQuest',
+              'WiredOut': 'WiredOut',
+              'PCLMM': 'PCLMM'
+            };
+
+            for (const [checkboxText, labelName] of Object.entries(labelMapping)) {
+              // Matches "- [x] CheckboxName" or "- [X] CheckboxName" with flexible spacing
+              const regex = new RegExp(`-\\s*\\[[xX]\\]\\s*${checkboxText}`, 'i');
+              if (regex.test(body)) {
+                labelsToAdd.push(labelName);
+              }
+            }
+
+            if (labelsToAdd.length > 0) {
+              await github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: labelsToAdd
+              });
+              console.log(`Added labels: ${labelsToAdd.join(', ')}`);
+            } else {
+              console.log("No matching project boxes were checked.");
+            }
