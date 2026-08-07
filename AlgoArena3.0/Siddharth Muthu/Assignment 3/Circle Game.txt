@@ -1,0 +1,119 @@
+#include <bits/stdc++.h>
+
+#define ll long long
+#define rep(i, a, b) for(ll i = a; i < b; i++)
+#define repb(i, a, b) for(ll i = a; i > b; i--)
+
+using namespace std;
+
+void print(vector<ll> a)
+{
+    for (auto i : a)
+        cout << i << " ";
+    cout << endl;
+}
+
+void input(vector<ll> &a, ll n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        cin >> a[i];
+    }
+}
+
+const ll MOD = 998244353;
+
+ll C(ll n, ll r)
+{
+    ll ans = 1;
+    for(int i = n; i>n-r; i--)
+    {
+        ans*=i;
+        ans/=n-i+1;
+    }
+    return ans;
+}
+
+vector<ll> divisor(1e6+1, -1);
+void sieve()
+{
+    for(int i = 2; i<divisor.size(); i++)
+    {
+        if(divisor[i] == -1){
+        for(int j = i*2; j<divisor.size(); j+=i)
+        {
+            divisor[j] = i;
+        }
+    }
+    }
+}
+
+
+ll mkpow(ll a, ll b)
+{
+    if(b == 0)
+        return 1;
+    ll t = (mkpow(a, b/2));
+    //cout<<a<<" "<<b<<" "<<t<<endl;
+    if(b%2 == 0)
+        return (t*t)%MOD;
+    return (((t*t)%MOD)*a)%MOD;
+}
+vector<bool> vis;
+set<ll> store;
+ll sz;
+map<ll, vector<pair<ll, ll>>> adj;
+void dfs(ll node, ll type)
+{
+    vis[node] = true;
+    sz++;
+    store.insert(node);
+    for(auto i: adj[node])
+    {
+        if(i.second == type && !vis[i.first] )
+            dfs(i.first, type);
+    }
+}
+
+
+
+void solve() 
+{
+    ll n, k;
+    cin>>n>>k;
+    ll turn = 0;
+    ll a = 0, b = 0;
+    while(a*a+b*b<=n*n)
+    {
+        if(turn%2 == 0){
+        a+=k;
+        turn++;}
+        else{
+        b+=k;
+        turn++;}
+    }
+    //cout<<a<<" "<<b<<" "<<turn<<endl;
+    if(turn%2 == 0)
+    {
+        cout<<"Ashish"<<endl;
+    }
+    else
+        cout<<"Utkarsh"<<endl;
+}   
+
+
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+#ifndef ONLINE_JUDGE
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+
+    int t1 = 1;
+    cin >> t1;
+    while (t1--) solve();
+}

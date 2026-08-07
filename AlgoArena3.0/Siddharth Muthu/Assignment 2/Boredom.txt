@@ -1,0 +1,59 @@
+#include <bits/stdc++.h>
+#define ll long long
+#define endl '\n'
+#define rep(i, a, b) for(ll i = a; i < b; i++)
+#define repb(i, a, b) for(ll i = a; i > b; i--)
+
+using namespace std;
+
+
+void print(vector<ll> a)
+{
+    for(auto i : a)
+        cout<<i<<" ";
+    cout<<endl;
+}
+
+void input(vector<ll> &a, ll n)
+{
+    for(int i = 0; i<n; i++)
+    {
+        cin>>a[i];
+    }
+}
+
+void solve()
+{
+    ll n;
+    cin>>n;
+    vector<ll>a(n);
+    for(int i = 0; i<n; i++)
+        cin>>a[i];
+    map<ll, ll> freq;
+    for(int i = 0; i<n; i++)
+    {
+        freq[a[i]]++;
+    }
+    vector<ll> dp(1e5+1);
+    dp[0] = 0;
+    dp[1] = freq[1];
+    for(int i = 2; i<=1e5; i++)
+    {
+        dp[i] = max(dp[i-1], dp[i-2]+i*freq[i]);
+    }
+    // for(int i = 0; i<10; i++)
+    //     cout<<dp[i]<<" ";
+    cout<<dp[1e5]<<endl;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+    int t = 1;
+    //cin >> t;
+    while (t--) solve();
+    
+    return 0;
+}

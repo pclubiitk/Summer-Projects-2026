@@ -1,0 +1,68 @@
+#include <bits/stdc++.h>
+#define ll long long
+#define endl '\n'
+#define rep(i, a, b) for(ll i = a; i < b; i++)
+#define repb(i, a, b) for(ll i = a; i > b; i--)
+
+using namespace std;
+
+
+void print(vector<ll> a)
+{
+    for(auto i : a)
+        cout<<i<<" ";
+    cout<<endl;
+}
+
+void input(vector<ll> &a, ll n)
+{
+    for(int i = 0; i<n; i++)
+    {
+        cin>>a[i];
+    }
+}
+
+void solve()
+{
+    ll n;
+    cin>>n;
+    vector<ll>a(n);
+    for(int i = 0;i<n; i++)
+        cin>>a[i];
+    map<ll, ll> dp;
+    for(int i = 0; i<n; i++)
+    {
+        dp[a[i]] = dp[a[i]-1]+1;
+    }
+    ll max1 = 0, end = 0;
+    for(auto i:dp)
+    {
+        if(i.second > max1)
+        {
+            max1 = i.second;
+            end = i.first;
+        }
+    }
+    cout<<max1<<endl;
+    ll search = end-max1+1;
+    for(int i = 0; i<n; i++)
+    {
+        if(a[i] == search)
+        {
+            cout<<i+1<<" ";
+            search++;
+        }
+    }
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+    int t = 1;
+    //cin >> t;
+    while (t--) solve();
+    
+    return 0;
+}
