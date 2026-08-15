@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat</title>
+        <style>
+    #messages {
+    background: #f0f0f0;
+    height: 300px;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.message {
+    width: fit-content;
+    max-width: 70%;
+    padding: 8px 12px;
+    margin: 5px;
+    border-radius: 10px;
+}
+
+.sent {
+    background: #dcf8c6;
+    margin-left: auto;
+    text-align: right;
+}
+
+.received {
+    background: white;
+    margin-right: auto;
+    text-align: left;
+}
+        </style>
+    </head>
+    <body>
+        <h1>WebSocket Chat</h1>
+        <div id='messages'>
+        </div>
+        <form action="" onsubmit="sendMessage(event)">
+            <input type="text" id="messageText"/>
+            <button>Send    </button>
+        </form>
+        <script>
+            var ws = new WebSocket("ws://localhost:8001/ws");
+            var heartbeatTimer = null;
+
+            function sendHeartbeat() {
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: "heartbeat" }));
+                }
+            }
+
+            ws.onopen = function() {
+                sendHeartbeat();
+                heartbeatTimer = setInterval(sendHeartbeat, 10000);
+            };
+
+            ws.onclose = function() {
+                if (heartbeatTimer) {
+                    clearInterval(heartbeatTimer);
+                    heartbeatTimer = null;
+                }
+            };
+
+        ws.onmessage = function(event) {
+    const payload = JSON.parse(event.data);
+
+    if (payload.type === "heartbeat_ack") {
+        return;
+    }
+
+    if (payload.type === "chat") {
+        const messages = document.getElementById("messages");
+
+        const message = document.createElement("div");
+        message.classList.add("message", "received");
+
+        message.textContent = payload.msg;
+
+        messages.appendChild(message);
+    }
+};
+            function sendMessage(event) {
+                event.preventDefault();
+                var input = document.getElementById("messageText")
+                var messages = document.getElementById('messages')
+                var message = document.createElement('div')
+                message.classList.add("message", "sent")
+                message.textContent = input.value
+                messages.appendChild(message)
+                ws.send(JSON.stringify({ type: "chat", text: message.textContent }))
+                input.value = ''
+            }
+        </script>
+    </body>
+</html>
