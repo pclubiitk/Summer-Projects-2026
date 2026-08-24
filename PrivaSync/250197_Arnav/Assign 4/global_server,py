@@ -1,0 +1,48 @@
+import asyncio
+import json
+import websockets
+
+TOTAL_SAMPLES = 0
+TOTAL_WEIGHTS = 0
+FEDERATED_AVG = 0
+
+async def handle_backend(websocket):
+    global TOTAL_SAMPLES, TOTAL_WEIGHTS, FEDERATED_AVG
+
+    print("Backend connected!")
+
+    try:
+        async for message in websocket:
+
+            data = json.loads(message)
+
+            TOTAL_SAMPLES += data["samples"]
+            TOTAL_WEIGHTS += data["weights"]
+
+            FEDERATED_AVG = TOTAL_WEIGHTS / TOTAL_SAMPLES
+
+            response = {
+                "federated_avg": FEDERATED_AVG
+            }
+
+            await websocket.send(json.dumps(response))
+
+            print(response)
+
+    except websockets.exceptions.ConnectionClosed:
+        print("Backend disconnected")
+
+
+async def main():
+
+    async with websockets.serve(
+        handle_backend,
+        "0.0.0.0",      # localhost is not used because 0.0.0.0 allows all computers to connect
+        8765
+    ):
+        print("Global Server Running...")
+        await asyncio.Future()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
